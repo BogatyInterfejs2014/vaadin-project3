@@ -2,8 +2,6 @@ package example.rtomczak;
 
 import javax.servlet.annotation.WebServlet;
 
-import org.atmosphere.cpr.Broadcaster;
-
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
@@ -24,14 +22,15 @@ import com.vaadin.ui.VerticalLayout;
 @Push
 @Theme("mytheme")
 @SuppressWarnings("serial")
-public class MyVaadinUI extends UI //implements Broadcaster.BroadcastListener
+public class MyVaadinUI extends UI implements Broadcaster.BroadcastListener
 {
 
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = MyVaadinUI.class, widgetset = "example.rtomczak.AppWidgetSet")
     public static class Servlet extends VaadinServlet {
     }
-
+    Chart chart;
+    ListSeries series;
     @Override
     protected void init(VaadinRequest request) {
     	final int[] votes = {0,0,0,0,0,0,0,0};
@@ -40,7 +39,7 @@ public class MyVaadinUI extends UI //implements Broadcaster.BroadcastListener
         setContent(layout);
         
         
-        Chart chart = new Chart(ChartType.COLUMN);
+        chart = new Chart(ChartType.COLUMN);
         chart.setWidth("400px");
         chart.setHeight("300px");
                 
@@ -68,7 +67,7 @@ public class MyVaadinUI extends UI //implements Broadcaster.BroadcastListener
         yaxis.getLabels().setStep(2);
         conf.addyAxis(yaxis);
      // The data
-        final ListSeries series = new ListSeries("Votes");
+        series = new ListSeries("Votes");
         series.setData(0,  0,  0,
                        0,  0, 0,
                        0, 0);
@@ -101,6 +100,7 @@ public class MyVaadinUI extends UI //implements Broadcaster.BroadcastListener
         Button button = new Button("Add vote to chart");
         button.addClickListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
+            	
             	votes[0] += Integer.parseInt(korwin.getValue());
                 votes[1] += Integer.parseInt(kalisz.getValue());
                 votes[2] += Integer.parseInt(miller.getValue());
@@ -109,6 +109,7 @@ public class MyVaadinUI extends UI //implements Broadcaster.BroadcastListener
                 votes[5] += Integer.parseInt(kaczynski.getValue());
                 votes[6] += Integer.parseInt(napieralski.getValue());
                 votes[7] += Integer.parseInt(pawlak.getValue());
+                Broadcaster.broadcast(votes);
                 series.updatePoint(0, votes[0]);
                 series.updatePoint(1, votes[1]);
                 series.updatePoint(2, votes[2]);
@@ -131,6 +132,40 @@ public class MyVaadinUI extends UI //implements Broadcaster.BroadcastListener
         layout.addComponent(chart);
         layout.addComponent(form);
         layout.addComponent(button);
+        // Register to receive broadcasts
+        Broadcaster.register(this);
+        
     }
+
+	@Override
+	public void receiveBroadcast(final int[] votes) {
+		access(new Runnable() {
+    		
+
+			@Override
+    		public void run() {
+    			
+    			votes[0] += votes[0];
+    			votes[1] += votes[1];
+    			votes[2] += votes[2];
+    			votes[3] += votes[3];
+    			votes[4] += votes[4];
+    			votes[5] += votes[5];
+    			votes[6] += votes[6];
+    			votes[7] += votes[7];
+    			final Configuration conf = chart.getConfiguration();
+                series.updatePoint(0, votes[0]);
+                series.updatePoint(1, votes[1]);
+                series.updatePoint(2, votes[2]);
+                series.updatePoint(3, votes[3]);
+                series.updatePoint(4, votes[4]);
+                series.updatePoint(5, votes[5]);
+                series.updatePoint(6, votes[6]);
+                series.updatePoint(7, votes[7]);
+                conf.addSeries(series);
+    		}
+    	});
+		
+	}
 
 }

@@ -12,7 +12,7 @@ public class Broadcaster implements Serializable {
     static ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public interface BroadcastListener {
-        void receiveBroadcast(String message);
+        void receiveBroadcast(int[] votes);
     }
   
     private static LinkedList<BroadcastListener> listeners = new LinkedList<BroadcastListener>();
@@ -25,13 +25,15 @@ public class Broadcaster implements Serializable {
         	listeners.remove(listener);
     }
  
-    public static synchronized void broadcast(final String message) {
-    		for (final BroadcastListener listener: listeners)
-    			executorService.execute(new Runnable() {
-    				@Override
-	                public void run() {
-	                    listener.receiveBroadcast(message);
-	                }
-            });
-    }
+
+	public static void broadcast(final int[] votes) {
+		for (final BroadcastListener listener: listeners)
+			executorService.execute(new Runnable() {
+				@Override
+                public void run() {
+                    listener.receiveBroadcast(votes);
+                }
+        });
+		
+	}
 }
