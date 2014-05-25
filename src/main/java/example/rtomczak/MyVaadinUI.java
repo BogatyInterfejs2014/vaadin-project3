@@ -2,6 +2,8 @@ package example.rtomczak;
 
 import javax.servlet.annotation.WebServlet;
 
+import org.atmosphere.cpr.Broadcaster;
+
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
@@ -22,7 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 @Push
 @Theme("mytheme")
 @SuppressWarnings("serial")
-public class MyVaadinUI extends UI
+public class MyVaadinUI extends UI //implements Broadcaster.BroadcastListener
 {
 
     @WebServlet(value = "/*", asyncSupported = true)
@@ -32,7 +34,7 @@ public class MyVaadinUI extends UI
 
     @Override
     protected void init(VaadinRequest request) {
-    	final int[] votes = new int[8];
+    	final int[] votes = {0,0,0,0,0,0,0,0};
         final VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         setContent(layout);
@@ -62,7 +64,7 @@ public class MyVaadinUI extends UI
         YAxis yaxis = new YAxis();
         yaxis.setTitle("Votes");
         yaxis.getLabels().setFormatter(
-          "function() {return Math.floor(this.value/10);}");
+          "function() {return Math.floor(this.value/1);}");
         yaxis.getLabels().setStep(2);
         conf.addyAxis(yaxis);
      // The data
@@ -71,63 +73,59 @@ public class MyVaadinUI extends UI
                        0,  0, 0,
                        0, 0);
         conf.addSeries(series);
-        Number[] numbers = series.getData();
+        /*Number[] numbers = series.getData();
         int number0 = (Integer) numbers[0];
-        int number1 = (Integer) numbers[1];
-        int number2 = (Integer) numbers[2];
-        int number3 = (Integer) numbers[3];
-        int number4 = (Integer) numbers[4];
-        int number5 = (Integer) numbers[5];
-        int number6 = (Integer) numbers[6];
-        int number7 = (Integer) numbers[7];
-          
-        votes[0] = number0;
-        votes[1] = number1;
-        votes[2] = number2;
-        votes[3] = number3;
-        votes[4] = number4;
-        votes[5] = number5;
-        votes[6] = number6;
-        votes[7] = number7;
+        votes[0] = number0;*/
         //form
-        //Binding
-        /*PropertysetItem item = new PropertysetItem();
-        item.addItemProperty("korwin", new ObjectProperty<Integer>(number0));
-        item.addItemProperty("kalisz", new ObjectProperty<Integer>(number1));
-        item.addItemProperty("miller", new ObjectProperty<Integer>(number2));
-        item.addItemProperty("palikot", new ObjectProperty<Integer>(number3));
-        item.addItemProperty("tusk", new ObjectProperty<Integer>(number4));
-        item.addItemProperty("kaczynski", new ObjectProperty<Integer>(number5));
-        item.addItemProperty("napieralski", new ObjectProperty<Integer>(number6));
-        item.addItemProperty("pawlak", new ObjectProperty<Integer>(number7));
-*/
+        
         // Have some layout
         final FormLayout form = new FormLayout();
         
-        // Now create a binder that can also create the fields
-        // using the default field factory
-        /*FieldGroup binder = new FieldGroup(item);
-        form.addComponent(binder.buildAndBind("Korwin", "korwin"));
-        form.addComponent(binder.buildAndBind("Kalisz", "kalisz"));
-        form.addComponent(binder.buildAndBind("Miller", "miller"));
-        form.addComponent(binder.buildAndBind("Palikot", "palikot"));
-        form.addComponent(binder.buildAndBind("Tusk", "tusk"));
-        form.addComponent(binder.buildAndBind("Kaczynski", "kaczynski"));
-        form.addComponent(binder.buildAndBind("Napieralski", "napieralski"));
-        form.addComponent(binder.buildAndBind("Pawlak", "pawlak"));*/
-        final TextField korwin = new TextField("Korwin");
-        final TextField kalisz = new TextField("Kalisz");
+        final TextField korwin = new TextField("Korwin");korwin.setValue("0");
+        final TextField kalisz = new TextField("Kalisz");kalisz.setValue("0");
+        final TextField miller = new TextField("Miller");miller.setValue("0");
+        final TextField palikot = new TextField("Plikot");palikot.setValue("0");
+        final TextField tusk = new TextField("Tusk");tusk.setValue("0");
+        final TextField kaczynski = new TextField("Kaczynski");kaczynski.setValue("0");
+        final TextField napieralski = new TextField("Napieralski");napieralski.setValue("0");
+        final TextField pawlak = new TextField("Pawlak");pawlak.setValue("0");
         form.addComponent(korwin);
         form.addComponent(kalisz);
+        form.addComponent(miller);
+        form.addComponent(palikot);
+        form.addComponent(tusk);
+        form.addComponent(kaczynski);
+        form.addComponent(napieralski);
+        form.addComponent(pawlak);
         
-        Button button = new Button("Click Me");
+        Button button = new Button("Add vote to chart");
         button.addClickListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-            	votes[0] = Integer.parseInt(korwin.getValue());
-                votes[1] = Integer.parseInt(kalisz.getValue());
+            	votes[0] += Integer.parseInt(korwin.getValue());
+                votes[1] += Integer.parseInt(kalisz.getValue());
+                votes[2] += Integer.parseInt(miller.getValue());
+                votes[3] += Integer.parseInt(palikot.getValue());
+                votes[4] += Integer.parseInt(tusk.getValue());
+                votes[5] += Integer.parseInt(kaczynski.getValue());
+                votes[6] += Integer.parseInt(napieralski.getValue());
+                votes[7] += Integer.parseInt(pawlak.getValue());
                 series.updatePoint(0, votes[0]);
                 series.updatePoint(1, votes[1]);
+                series.updatePoint(2, votes[2]);
+                series.updatePoint(3, votes[3]);
+                series.updatePoint(4, votes[4]);
+                series.updatePoint(5, votes[5]);
+                series.updatePoint(6, votes[6]);
+                series.updatePoint(7, votes[7]);
                 conf.addSeries(series);
+                korwin.setValue("0");
+                kalisz.setValue("0");
+                miller.setValue("0");
+                palikot.setValue("0");
+                tusk.setValue("0");
+                kaczynski.setValue("0");
+                napieralski.setValue("0");
+                pawlak.setValue("0");
             }
         });
         layout.addComponent(chart);
