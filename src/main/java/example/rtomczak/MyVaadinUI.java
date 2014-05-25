@@ -31,6 +31,7 @@ public class MyVaadinUI extends UI implements Broadcaster.BroadcastListener
     }
     Chart chart;
     ListSeries series;
+    int[] receiveds = new int[8];
     @Override
     protected void init(VaadinRequest request) {
     	final int[] votes = {0,0,0,0,0,0,0,0};
@@ -100,7 +101,8 @@ public class MyVaadinUI extends UI implements Broadcaster.BroadcastListener
         Button button = new Button("Add vote to chart");
         button.addClickListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event) {
-            	
+            	votes[0] = 0;votes[1] = 0;votes[2] = 0;votes[3] = 0;
+                votes[4] = 0;votes[5] = 0;votes[6] = 0;votes[7] = 0;
             	votes[0] += Integer.parseInt(korwin.getValue());
                 votes[1] += Integer.parseInt(kalisz.getValue());
                 votes[2] += Integer.parseInt(miller.getValue());
@@ -110,7 +112,7 @@ public class MyVaadinUI extends UI implements Broadcaster.BroadcastListener
                 votes[6] += Integer.parseInt(napieralski.getValue());
                 votes[7] += Integer.parseInt(pawlak.getValue());
                 Broadcaster.broadcast(votes);
-                series.updatePoint(0, votes[0]);
+                /*series.updatePoint(0, votes[0]);
                 series.updatePoint(1, votes[1]);
                 series.updatePoint(2, votes[2]);
                 series.updatePoint(3, votes[3]);
@@ -118,7 +120,9 @@ public class MyVaadinUI extends UI implements Broadcaster.BroadcastListener
                 series.updatePoint(5, votes[5]);
                 series.updatePoint(6, votes[6]);
                 series.updatePoint(7, votes[7]);
-                conf.addSeries(series);
+                conf.addSeries(series);*/
+                //votes[0] = 0;votes[1] = 0;votes[2] = 0;votes[3] = 0;
+                //votes[4] = 0;votes[5] = 0;votes[6] = 0;votes[7] = 0;
                 korwin.setValue("0");
                 kalisz.setValue("0");
                 miller.setValue("0");
@@ -145,24 +149,26 @@ public class MyVaadinUI extends UI implements Broadcaster.BroadcastListener
 			@Override
     		public void run() {
     			
-    			votes[0] += votes[0];
-    			votes[1] += votes[1];
-    			votes[2] += votes[2];
-    			votes[3] += votes[3];
-    			votes[4] += votes[4];
-    			votes[5] += votes[5];
-    			votes[6] += votes[6];
-    			votes[7] += votes[7];
+				receiveds[0] += votes[0];
+				receiveds[1] += votes[1];
+				receiveds[2] += votes[2];
+				receiveds[3] += votes[3];
+				receiveds[4] += votes[4];
+				receiveds[5] += votes[5];
+				receiveds[6] += votes[6];
+				receiveds[7] += votes[7];
     			final Configuration conf = chart.getConfiguration();
-                series.updatePoint(0, votes[0]);
-                series.updatePoint(1, votes[1]);
-                series.updatePoint(2, votes[2]);
-                series.updatePoint(3, votes[3]);
-                series.updatePoint(4, votes[4]);
-                series.updatePoint(5, votes[5]);
-                series.updatePoint(6, votes[6]);
-                series.updatePoint(7, votes[7]);
+                series.updatePoint(0, receiveds[0]);
+                series.updatePoint(1, receiveds[1]);
+                series.updatePoint(2, receiveds[2]);
+                series.updatePoint(3, receiveds[3]);
+                series.updatePoint(4, receiveds[4]);
+                series.updatePoint(5, receiveds[5]);
+                series.updatePoint(6, receiveds[6]);
+                series.updatePoint(7, receiveds[7]);
                 conf.addSeries(series);
+                /*votes[0] = 0;votes[1] = 0;votes[2] = 0;votes[3] = 0;
+                votes[4] = 0;votes[5] = 0;votes[6] = 0;votes[7] = 0;*/
     		}
     	});
 		
