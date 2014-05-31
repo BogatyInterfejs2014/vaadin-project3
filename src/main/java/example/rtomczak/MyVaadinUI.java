@@ -13,13 +13,16 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
@@ -41,6 +44,8 @@ public class MyVaadinUI extends UI
     int[] receiveds = new int[8];
     final int[] votes = {0,0,0,0,0,0,0,0};
     Navigator navigator;
+    String loggedInUser;
+    MyVaadinUI ui = MyVaadinUI.this;
     @Override
     protected void init(VaadinRequest request) {
     	
@@ -48,12 +53,34 @@ public class MyVaadinUI extends UI
         navigator = new Navigator(this, this);
         
         // Create and register the views
-        navigator.addView("", new Wykres());
+        navigator.addView("", new Wykres(navigator));
         navigator.addView("Glosowanie", new Glosowanie());
         
+        navigator.addViewChangeListener(new ViewChangeListener() {
+			
+			@Override
+			public boolean beforeViewChange(ViewChangeEvent event) {
+				
+				if(((MyVaadinUI) UI.getCurrent()).getLoggedInUser()==null){
+				//if(ui.getSession().getAttribute("login") == null && ui.getSession().getAttribute("password") == null){
+					navigator.getDisplay().showView(new Wykres(navigator));
+				}else{
+					navigator.getDisplay().showView(new Glosowanie());
+				}
+				return false;
+			}
+			
+			@Override
+			public void afterViewChange(ViewChangeEvent event) {				
+			}
+		});
+        
     }
+    
+    
+    
     public class Wykres extends VerticalLayout implements View{
-    	public Wykres(){
+    	public Wykres(final Navigator navigator){
     			setSizeFull();
 				final VerticalLayout layout = new VerticalLayout();
 		        layout.setMargin(true);
@@ -93,13 +120,17 @@ public class MyVaadinUI extends UI
 		        button1.addClickListener(new ClickListener() {
 					@Override
 					public void buttonClick(ClickEvent event) {
+						
+						//navigator.navigateTo("Glosowanie");
 						if(user.getValue().equals("admin") && password.getValue().equals("AdMiN")){
+							//ui.getSession().setAttribute("login", user.getValue());
+							((MyVaadinUI) UI.getCurrent()).setLoggedInUser(user.getValue());
 							navigator.navigateTo("Glosowanie");
 						}else{
 							Notification.show("Wrong user or password");
 							user.setValue("");
 							password.setValue("");
-						}	
+						}
 						
 					}
 				});
@@ -117,6 +148,9 @@ public class MyVaadinUI extends UI
 		}
     	
     }
+    
+    
+    
 	public class Glosowanie extends VerticalLayout implements Broadcaster.BroadcastListener, View{   
     	
 		private static final long serialVersionUID = 1L;
@@ -171,8 +205,18 @@ public class MyVaadinUI extends UI
                     
                 }
             });
+            Button logOut = new Button("Logout", new Button.ClickListener() {
+                public void buttonClick(ClickEvent event) {
+
+                	((MyVaadinUI)UI.getCurrent()).setLoggedInUser(null);
+                	navigator.navigateTo("");
+                    
+                }
+            });
+            
             layout1.addComponent(form);
             layout1.addComponent(button);
+            layout1.addComponent(logOut);
             addComponent(layout1);
             Broadcaster.register(this);
             
@@ -208,5 +252,13 @@ public class MyVaadinUI extends UI
 		public void enter(ViewChangeEvent event) {
 			//Notification.show("Welcome to Voting");
 		}
+    }
+	public String getLoggedInUser(){ 
+		//loggedInUser = (String) ui.getSession().getAttribute("login");
+		return loggedInUser; 
+	} 
+    public void setLoggedInUser(String user){ 
+    	//ui.getSession().setAttribute("login", user);
+    	loggedInUser = user; 
     }
 }
